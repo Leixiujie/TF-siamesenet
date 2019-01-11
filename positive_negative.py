@@ -11,8 +11,8 @@ file_name = 'train.csv'
 def generation():
     f1 = open("dataset_id_num.txt",'r')
     f2 = open("dataset_path.txt",'r')
-    f3 = open("positive.txt",'w')
-    f4 = open("negative.txt",'w')
+    f3 = open("positive_pairs_path.txt",'w')
+    f4 = open("negative_pairs_path.txt",'w')
     
     nums_line = f1.readline()
     id_nums = nums_line.strip().split(' ')
