@@ -5,14 +5,15 @@ Created on Thu Jan 10 20:54:13 2019
 @author: Administrator
 """
 import csv_deal
+import random
 
 file_name = 'train.csv'
 
 def generation():
-    f1 = open("dataset_id_num.txt",'r')
-    f2 = open("dataset_path.txt",'r')
-    f3 = open("positive_pairs_path.txt",'w')
-    f4 = open("negative_pairs_path.txt",'w')
+    f1 = open("./datas/dataset_id_num.txt",'r')
+    f2 = open("./datas/dataset_path.txt",'r')
+    f3 = open("./datas/positive_pairs_path.txt",'w')
+    f4 = open("./datas/negative_pairs_path.txt",'w')
     
     nums_line = f1.readline()
     id_nums = nums_line.strip().split(' ')
@@ -73,17 +74,21 @@ def generation():
     和自己id不同的配对,和每条鲸鱼的图片仅配对一张图片
     '''    
     now = 0
+    random_index = 0
     for id_num in id_nums:
         index = now
-        while(index < 25361):
+        flag = True
+        
+        while(index < 15697):
             iid = id_nums[index]
-            if (iid != id_nums[index - 1]):
+            if (iid != id_nums[index - random_index]):
                 flag = True
                 
             if (id_num != id_nums[index]) & flag:
                 f4.write(str(paths[now]) + ' ' + str(paths[index]) + '\n')
                 flag = False
-            index += 1
+            random_index = random.randint(1,2700)
+            index += random_index
         now += 1
         
         if now % 100 ==0:

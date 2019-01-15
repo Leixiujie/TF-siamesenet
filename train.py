@@ -24,6 +24,7 @@ model1, model2, distance, loss = SIAMESE().contrastive_loss(left_output, right_o
 global_step = tf.Variable(0, trainable=False)
 
 train_step = tf.train.AdamOptimizer(0.0001).minimize(loss, global_step=global_step)
+print("the model has been built")
 
 # saver = tf.train.Saver()
 with tf.Session() as sess:
@@ -43,13 +44,16 @@ with tf.Session() as sess:
 
     # train iter
     idx = 0
+    
     for i in range(FLAGS.train_iter):
+        
         batch_left, batch_right, batch_similar, idx = get_batch_image_path(left_train, right_train, similar_train, idx)
         batch_left_arr, batch_right_arr, batch_similar_arr = \
             get_batch_image_array(batch_left, batch_right, batch_similar)
 
-        _, l, summary_str = sess.run([train_step, loss, merged],
+        steps, l, summary_str = sess.run([train_step, loss, merged],
                                      feed_dict={left: batch_left_arr, right: batch_right_arr, label: batch_similar_arr})
+        #print('loss is' + str(l))
         writer.add_summary(summary_str, i)
         logging.info("\r#%d - Loss" % i, l)
 

@@ -7,9 +7,9 @@ def csv_deal(file_name):
     path = imginfo.col_values(0)
     ids = imginfo.col_values(1)
     
-    f1 = open("dataset_deal.txt",'w')
-    f2 = open("dataset_id_num.txt",'w')  
-    f3 = open("dataset_path.txt",'w')
+    f1 = open("./datas/dataset_deal.txt",'w')
+    f2 = open("./datas/dataset_id_num.txt",'w')  
+    f3 = open("./datas/dataset_path.txt",'w')
     
     id_onehot = []
     iid = ids[0]

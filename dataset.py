@@ -12,6 +12,7 @@ negative_pairs_path_lines = negative_pairs_path_file.readlines()
 positive_pairs_path_file = open(FLAGS.positive_file, 'r')
 positive_pairs_path_lines = positive_pairs_path_file.readlines()
 
+print('mark: loaded positive_negative files')
 left_image_path_list = []
 right_image_path_list = []
 similar_list = []
@@ -27,7 +28,7 @@ for line in positive_pairs_path_lines:
     left_image_path_list.append(left_right[0])
     right_image_path_list.append(left_right[1])
     similar_list.append(1)
-
+print('mark: added positve and negative array ')
 left_image_path_list = np.asarray(left_image_path_list)
 right_image_path_list = np.asarray(right_image_path_list)
 similar_list = np.asarray(similar_list)
@@ -41,14 +42,21 @@ similar_shuffled = similar_list[shuffle_indices]
 left_train, left_dev = left_shuffled[:DEV_NUMBER], left_shuffled[DEV_NUMBER:]
 right_train, right_dev = right_shuffled[:DEV_NUMBER], right_shuffled[DEV_NUMBER:]
 similar_train, similar_dev = similar_shuffled[:DEV_NUMBER], similar_shuffled[DEV_NUMBER:]
-
+print('mark: shuffle completed')
 
 def vectorize_imgs(img_path_list):
     image_arr_list = []
+    iii = 0
     for img_path in img_path_list:
+        iii += 1
+        if (iii % 1000 == 0):
+            print(iii)
         if os.path.exists(BASE_PATH + img_path):
             img = Image.open(BASE_PATH + img_path)
+           
             img_arr = np.asarray(img, dtype='float32')
+            
+        
             image_arr_list.append(img_arr)
         else:
             print(img_path)
@@ -73,4 +81,8 @@ def get_batch_image_array(batch_left, batch_right, batch_similar):
 
 
 if __name__ == '__main__':
-    pass
+    a = []
+    a.append('1.jpg')
+    a.append('2.jpg')
+    arr = vectorize_imgs(a)
+    print(arr)
