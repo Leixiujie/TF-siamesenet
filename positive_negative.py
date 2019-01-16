@@ -6,14 +6,19 @@ Created on Thu Jan 10 20:54:13 2019
 """
 import csv_deal
 import random
+import os
 
 file_name = 'train.csv'
 
 def generation():
+    if not os.path.exists('./datas/'):
+        os.makedirs('./datas/')
+    
     f1 = open("./datas/dataset_id_num.txt",'r')
     f2 = open("./datas/dataset_path.txt",'r')
     f3 = open("./datas/positive_pairs_path.txt",'w')
     f4 = open("./datas/negative_pairs_path.txt",'w')
+    
     
     nums_line = f1.readline()
     id_nums = nums_line.strip().split(' ')
@@ -105,7 +110,9 @@ def generation():
     f4.close()        
     
     
-if __name__ == '__main__':
+def main():
     csv_deal.csv_deal(file_name)
     generation()
     
+if __name__ == '__main__' :
+    main()

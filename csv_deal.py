@@ -1,11 +1,16 @@
 import xlrd
+import os
 
 def csv_deal(file_name):
+    if not os.path.exists('./datas/'):
+        os.makedirs('./datas/')
+    
     workbook = xlrd.open_workbook(file_name)
     imginfo = workbook.sheet_by_index(0)
     
     path = imginfo.col_values(0)
     ids = imginfo.col_values(1)
+    
     
     f1 = open("./datas/dataset_deal.txt",'w')
     f2 = open("./datas/dataset_id_num.txt",'w')  
