@@ -3,7 +3,7 @@ from PIL import Image
 from config import FLAGS
 import os
 
-DEV_NUMBER = FLAGS.train_iter
+DEV_NUMBER = FLAGS.DEV_NUMBER
 BASE_PATH = FLAGS.BASE_PATH
 batch_size = FLAGS.batch_size
 
@@ -42,18 +42,17 @@ left_shuffled = left_image_path_list[shuffle_indices]
 right_shuffled = right_image_path_list[shuffle_indices]
 similar_shuffled = similar_list[shuffle_indices]
 
-left_train, left_dev = left_shuffled[:DEV_NUMBER], left_shuffled[DEV_NUMBER:]
-right_train, right_dev = right_shuffled[:DEV_NUMBER], right_shuffled[DEV_NUMBER:]
+left_train = left_shuffled[:DEV_NUMBER]
+left_dev = left_shuffled[DEV_NUMBER:]
+right_train = right_shuffled[:DEV_NUMBER]
+right_dev = right_shuffled[DEV_NUMBER:]
 similar_train, similar_dev = similar_shuffled[:DEV_NUMBER], similar_shuffled[DEV_NUMBER:]
 print('mark: shuffle completed')
 
 def vectorize_imgs(img_path_list):
     image_arr_list = []
-    iii = 0
     for img_path in img_path_list:
-        iii += 1
-        if (iii % 1000 == 0):
-            print(iii)
+        
         if os.path.exists(BASE_PATH + img_path):
             img = Image.open(BASE_PATH + img_path)
            

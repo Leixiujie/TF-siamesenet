@@ -2,6 +2,7 @@ import tensorflow as tf
 from model import SIAMESE
 from dataset import *
 import logging
+import numpy as np
 
 def main():
     logging.basicConfig(level=logging.DEBUG,
@@ -42,7 +43,6 @@ def main():
         writer = tf.summary.FileWriter('train.log', sess.graph)
     
         left_dev_arr, right_dev_arr, similar_dev_arr = get_batch_image_array(left_dev, right_dev, similar_dev)
-    
         # train iter
         idx = 0
         
@@ -54,13 +54,31 @@ def main():
     
             steps, l, summary_str = sess.run([train_step, loss, merged],
                                          feed_dict={left: batch_left_arr, right: batch_right_arr, label: batch_similar_arr})
-            print('after '+str(i) + 'times training,loss is ' + str(l))
+            print('after '+str(i) + ' times training,loss is ' + str(l))
             writer.add_summary(summary_str, i)
     
+            #测试正确率
             if (i + 1) % FLAGS.validation_step == 0:
-                val_distance = sess.run([distance],
-                                        feed_dict={left: left_dev_arr, right: right_dev_arr, label: similar_dev_arr})
-                logging.info(np.average(val_distance))
+                print('------validation here------')
+                num_of_true = 0
+                for t in range(0,abs(int(DEV_NUMBER / 50))):
+                    val_distance_district = sess.run([distance],
+                                            feed_dict={left: left_dev_arr[50*t:50*(t+1),:,:,:], right: right_dev_arr[50*t:50*(t+1),:,:,:], label: similar_dev_arr[50*t:50*(t+1)]})
+                    index = 0
+                    
+                    for j in val_distance_district[0]:
+                        if j >= 0.5:
+                            j = 1
+                        else:
+                            j = 0
+                        
+                        if j ==similar_dev_arr[50*t:50*(t+1)][index] :
+                            num_of_true += 1
+                        index += 1
+                
+                print('测试集的正确率为：' + str(1.0*num_of_true/2000))
+                        
+                
     
             if i % FLAGS.step == 0 and i != 0:
                 saver.save(sess, "checkpoint/model_%d.ckpt" % i)
