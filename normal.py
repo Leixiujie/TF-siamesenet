@@ -11,9 +11,7 @@ import numpy as np
 import cv2
 
 
-def all_pics_processing():
-    root='./train/'
-    transformed_images = './new_train/'
+def all_pics_processing(root , transformed_images):
     for path,dirs,files in os.walk(root):
         break
     

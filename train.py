@@ -2,7 +2,6 @@ import tensorflow as tf
 from model import SIAMESE
 from dataset import *
 import logging
-import numpy as np
 
 def main():
     logging.basicConfig(level=logging.DEBUG,
@@ -17,7 +16,6 @@ def main():
         label = tf.to_float(label)
     
     left_output = SIAMESE().siamesenet(left, reuse=False)
-    print(left_output.shape)
     
     right_output = SIAMESE().siamesenet(right, reuse=True)
     
@@ -25,14 +23,16 @@ def main():
     
     global_step = tf.Variable(0, trainable=False)
     
-    train_step = tf.train.AdamOptimizer(0.0001).minimize(loss, global_step=global_step)
+    
+    
+    train_step = tf.train.AdamOptimizer(0.000001).minimize(loss, global_step=global_step) #4个0
     print("the model has been built")
     
-    # saver = tf.train.Saver()
+    saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=20)
-        # saver.restore(sess, 'checkpoint_trained/model_3.ckpt')
+        saver.restore(sess, './checkpoint/model_13000.ckpt')
     
         # setup tensorboard
         tf.summary.scalar('step', global_step)
@@ -63,7 +63,7 @@ def main():
                 num_of_true = 0
                 for t in range(0,abs(int(DEV_NUMBER / 50))):
                     val_distance_district = sess.run([distance],
-                                            feed_dict={left: left_dev_arr[50*t:50*(t+1),:,:,:], right: right_dev_arr[50*t:50*(t+1),:,:,:], label: similar_dev_arr[50*t:50*(t+1)]})
+                                            feed_dict={left: left_dev_arr[50*t:50*(t+1),:,:,:], right: right_dev_arr[50*t:50*(t+1),:,:,:]})
                     index = 0
                     
                     for j in val_distance_district[0]:
