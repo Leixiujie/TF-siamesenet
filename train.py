@@ -67,7 +67,7 @@ def main():
                     index = 0
                     
                     for j in val_distance_district[0]:
-                        if j >= 0.5:
+                        if j >= 0:
                             j = 1
                         else:
                             j = 0

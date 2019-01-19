@@ -11,8 +11,7 @@ import os
 file_name = 'train.csv'
 
 def generation():
-    if not os.path.exists('./datas/'):
-        os.makedirs('./datas/')
+    
     
     f1 = open("./datas/dataset_id_num.txt",'r')
     f2 = open("./datas/dataset_path.txt",'r')

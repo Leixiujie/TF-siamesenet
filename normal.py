@@ -46,4 +46,6 @@ def all_pics_processing(root , transformed_images):
             
             
 if __name__ == '__main__':
-    all_pics_processing()
+    root = './train/'
+    transformed_images = './new_train/'
+    all_pics_processing(root,transformed_images)
