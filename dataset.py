@@ -7,8 +7,6 @@ DEV_NUMBER = FLAGS.DEV_NUMBER
 BASE_PATH = FLAGS.BASE_PATH
 batch_size = FLAGS.batch_size
 
-if not os.path.exists(FLAGS.negative_file):
-        os.makedirs(FLAGS.negative_file)
         
 negative_pairs_path_file = open(FLAGS.negative_file, 'r')
 negative_pairs_path_lines = negative_pairs_path_file.readlines()
