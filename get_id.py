@@ -8,6 +8,7 @@ pair_paths_base = './datas/test_pair_lists/'
 
 def find_biggest_arr(files):
     idds = []
+    tt = 0
     for txt_name in files:
         txt_path = os.path.join(base_path,str(txt_name).strip())
         f = open(txt_path,'r')
@@ -23,8 +24,11 @@ def find_biggest_arr(files):
             num += 1
         f.close()
         idds.append(idd)
+        if (tt % 10 == 0):
+            print('正在找第'+str(tt)+'/7960个图片的最大五个可能id编号')
+        tt += 1
     print(len(idds))
-    print(len(idds[1]))
+    
     return idds
 
 def get_minn(distances,idd):
@@ -82,7 +86,7 @@ def get_idds(idds,fies):
         writer.writerow((Image,Id))
         tt += 1
         if (tt % 50 ==0):
-            print('正在写第'+str(tt)+'个数据')
+            print('正在写第'+str(tt)+'/7960个图片的csv信息')
     
     
         
@@ -92,8 +96,10 @@ def get_idds(idds,fies):
 if __name__ == '__main__':
     for path,dirs,files in os.walk(base_path):
         break
-        idds = find_biggest_arr(files)
-        get_idds(idds,files)
+
+    idds = find_biggest_arr(files)
+    print(len(idds))
+    get_idds(idds,files)
 
 
 
