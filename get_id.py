@@ -1,25 +1,31 @@
 import os
-import numpy as np
+import csv
+import xlrd
 
 base_path = './datas/distance_file/'
 pair_paths_base = './datas/test_pair_lists/'
 
 
-def find_biggest_arr(txt_name):
-    txt_path = os.path.join(base_path,str(txt_name).strip())
-    f = open(txt_path,'r')
-    distances = f.readlines()
-
-    idd = [0,1,2,3,4]
-    num = 5
+def find_biggest_arr(files):
+    idds = []
+    for txt_name in files:
+        txt_path = os.path.join(base_path,str(txt_name).strip())
+        f = open(txt_path,'r')
+        distances = f.readlines()
     
-    for distance in distances[5:]:
-        minn,minn_index = get_minn(distances,idd)
-        if(minn < eval(distance)):
-            idd[minn_index] = num
-        num += 1
-    f.close()
-    return idd
+        idd = [0,1,2,3,4]
+        num = 5
+        
+        for distance in distances[5:]:
+            minn,minn_index = get_minn(distances,idd)
+            if(minn < eval(distance)):
+                idd[minn_index] = num
+            num += 1
+        f.close()
+        idds.append(idd)
+    print(len(idds))
+    print(len(idds[1]))
+    return idds
 
 def get_minn(distances,idd):
     minn = eval(distances[idd[0]])
@@ -32,24 +38,63 @@ def get_minn(distances,idd):
         t += 1
     return minn,idd_index
 
-def get_idds(idd,pair_paths,txt_name):
-    f = open(pair_paths,'r')
-    pairs = f.readlines()
-    txt_path = os.path.join(base_path,str(txt_name).strip())
-    f = open(txt_path,'r')
-
-    distance = f.readlines()
-    for i in idd:
-        print(pairs[i])
-        print(distance[i])
-
+def get_idds(idds,fies):
+    
+    #打开编号对应id文件
+    workbook = xlrd.open_workbook('train.csv')
+    imginfo = workbook.sheet_by_index(0)
+    ids = imginfo.col_values(1)
+    #打开要写的csv文件
+    f = open('example.csv', 'w', newline='')
+    writer = csv.writer(f)
+    writer.writerow(('Image','Id'))
+    tt = 0
+    for txt_name in files:
+        pair_paths = os.path.join(pair_paths_base,str(txt_name).strip())
+    
+    
+    
+        f = open(pair_paths,'r')
+        pairs = f.readlines()
+        f.close()
+        txt_path = os.path.join(base_path,str(txt_name).strip())
+        f = open(txt_path,'r')
+        distance = f.readlines()
+        f.close()
+        
+        idd = idds[tt]
+        #排序 将他们的distance大小从小到大排出
+        for i in range(5):
+            for j in range(i+1,5):
+                if(eval(distance[idd[i]]) < eval(distance[idd[j]])):
+                    t = idd[i]
+                    idd[i] = idd[j]
+                    idd[j] = t
+    
+    
+    
+        #输出排序后的结果
+        Id = ''
+        for i in idd:
+            Id =Id + str(ids[i]) + ' '
+            Image = (pairs[i].strip().split(' ')[1]).split('/')[2]
+    
+        writer.writerow((Image,Id))
+        tt += 1
+        if (tt % 50 ==0):
+            print('正在写第'+str(tt)+'个数据')
+    
+    
+        
+        
+        
 
 if __name__ == '__main__':
-    txt_name = '0aaa29830.txt'
-    idd = find_biggest_arr(txt_name)
-    pair_paths = os.path.join(pair_paths_base,txt_name)
-    get_idds(idd,pair_paths,txt_name)
-    print(idd)
+    for path,dirs,files in os.walk(base_path):
+        break
+        idds = find_biggest_arr(files)
+        get_idds(idds,files)
+
 
 
 
