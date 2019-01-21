@@ -11,8 +11,7 @@
 	4.model.py 我fork的作者说，这是一个简化版的VGG模型，不过提取特征效果是真的不错。
 
 	5.train.py model 搭建好之后，把数据丢入训练，注意：训练必须用sess.run()语句才能训练。相当于前向传播和反向传播成型之后，用sess.run（）  里面变量填什么，这个网络就计算到哪一步。如后面的test_from_saved_model_entry.py里面sess.run([distance],feed_dic = ...)就只算到
-了distance，就没有跑到后面的optimizer那里去，就没有训练模型，再走几步到optimizer才开始训练，而我们测试不用训练，所以不走到那一步
-。
+了distance，就没有跑到后面的optimizer那里去，就没有训练模型，再走几步到optimizer才开始训练，而我们测试不用训练，所以不走到那一步。
 
 	6.test_pairs.py 是用于生成test文件夹里面图片和train文件夹里图片的配对的。让test里面的图片和train里面每一张图片配对，这样保证和每个图片都对比一次，但是特别费时间。后期看2.5w对能否全部加载入内存（如果内存允许），不一次一次读，读一次用一次太费时间了。测试的时候train没花太多时间，主要是花在读取文件上面了。
 
