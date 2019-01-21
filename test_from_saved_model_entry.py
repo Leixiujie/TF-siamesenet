@@ -1,151 +1,94 @@
-import normal
-import os
+from model import SIAMESE
 import tensorflow as tf
-from config import FLAGS
-from dataset import *
+from PIL import Image
+import logging
+import os
+import numpy as np
 
-root = './test/'
-transformed_images = './new_test/'
-transformed_train_images = './new_train/'
 
-def test_pic_processing():
-    normal.all_pics_processing(root , transformed_images)
-    print('--------图片处理完成-------------')
-
-def test_pairs_generation(test_images_path,train_images_path):
-    lists_path = './datas/test_pair_lists/'
-    if not os.path.exists(lists_path):
-        os.makedirs(lists_path)
+def main():
+    logging.basicConfig(level=logging.DEBUG,
+                        format="%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s",
+                        datefmt='%b %d %H:%M')
     
-    for path,dirs,files in os.walk(test_images_path):
-        break
+    with tf.name_scope("in"):
+        left = tf.placeholder(tf.float32, [None, 72, 72, 3], name='left')
+        right = tf.placeholder(tf.float32, [None, 72, 72, 3], name='right')
+    with tf.name_scope("similarity"):
+        label = tf.placeholder(tf.int32, [None, 1], name='label')  # 1 if same, 0 if different
+        label = tf.to_float(label)
     
-    f = open('./datas/dataset_path.txt','r')
-    paths = f.readline()
-    paths = paths.strip().split(' ')
-    '''
-    此处将每一个test里面的图片，列出一个与训练集里图片的配对表
-    （全都放在一个txt里面文件太大，大概5.7g，
-    转换为图片矩阵再载入内存不太够，此方法较为暴力....
-    但是对于竞赛估计有效，毕竟只呈交一个csv文件）
-    '''
-    iii = 0
-    for file in files:
-        iii += 1
-        if(iii % 50 == 0):
-            print('已生成' + str(iii) + '/7960个图片对')
-        pic_name = str(file).strip().split('.')[0]
-        txt_name = str(pic_name) + '.txt'
-        total_name = os.path.join(lists_path,txt_name)
-        f = open(total_name,'w')
-        for path in paths:
-            f.write('./new_train/' + str(path) + ' ' + './new_test/' + str(file) + '\n')
-        f.close()
+    left_output = SIAMESE().siamesenet(left, reuse=False)
     
-
-def calculate_id(pairs_paths):
-    #再次载入样本对 
-    negative_pairs_path_file = open(FLAGS.negative_file, 'r')
-    negative_pairs_path_lines = negative_pairs_path_file.readlines()
-    positive_pairs_path_file = open(FLAGS.positive_file, 'r')
-    positive_pairs_path_lines = positive_pairs_path_file.readlines()
+    right_output = SIAMESE().siamesenet(right, reuse=True)
     
-    print('mark: loaded positive_negative files')
-    left_image_path_list = []
-    right_image_path_list = []
-    similar_list = []
+    model1, model2, distance, loss = SIAMESE().contrastive_loss(left_output, right_output, label)
     
-    for line in negative_pairs_path_lines:
-        left_right = line.strip().split(' ')
-        left_image_path_list.append(left_right[0])
-        right_image_path_list.append(left_right[1])
-        similar_list.append(0)
+    global_step = tf.Variable(0, trainable=False)
     
-    for line in positive_pairs_path_lines:
-        left_right = line.strip().split(' ')
-        left_image_path_list.append(left_right[0])
-        right_image_path_list.append(left_right[1])
-        similar_list.append(1)
-    print('mark: added positve and negative array ')
-    left_image_path_list = np.asarray(left_image_path_list)
-    right_image_path_list = np.asarray(right_image_path_list)
-    similar_list = np.asarray(similar_list)
     
-    np.random.seed(10)
-    shuffle_indices = np.random.permutation(np.arange(len(similar_list)))
-    left_shuffled = left_image_path_list[shuffle_indices]
-    right_shuffled = right_image_path_list[shuffle_indices]
-    similar_shuffled = similar_list[shuffle_indices]
     
-    left_dev = left_shuffled[0:30000]
-    right_dev = right_shuffled[0:30000]
-    similar_dev = similar_shuffled[0:30000]
-    print('mark: shuffle completed')
+    train_step = tf.train.AdamOptimizer(0.0000001).minimize(loss, global_step=global_step) #小数点后7个0
+    print("the model has been built")
     
-    graph = tf.Graph()
-    with graph.as_default():
-        session_conf = tf.ConfigProto(allow_soft_placement = True,log_device_placement = False)
-        sess = tf.Session(config = session_conf)
-        with sess.as_default():
-            saver = tf.train.import_meta_graph('checkpointt/model_133000.ckpt.meta')
-            saver.restore(sess, 'checkpointt/model_133000.ckpt')
+    saver = tf.train.Saver()
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver = tf.train.Saver(tf.global_variables(), max_to_keep=20)
+        saver.restore(sess, './checkpoint/model_21000.ckpt')                  #此处输入要续接的模型
+        
+        
+        base_path = './datas/'
+        pairs_path = os.path.join(base_path,'test_pair_lists')
+        for path,dirs,files in os.walk(pairs_path):
+            break
+        
+        distance_file = os.path.join(base_path,'distance_file/')
+        
+        
+        if not os.path.exists(distance_file):
+            os.makedirs(distance_file)
             
-            left = graph.get_operation_by_name("in/left").outputs[0]
-            right = graph.get_operation_by_name("in/right").outputs[0]
+        num_of_test_pic = 0
+        for txt in files:
+            num_of_test_pic += 1
+            txt_path = os.path.join(pairs_path,str(txt).strip())
+            comparison_file = open(txt_path, 'r')
+            comparison_pairs_path_line = comparison_file.readlines()
             
-            distance = graph.get_operation_by_name("output/distance").outputs[0]
-            sigmoid_distance = tf.nn.sigmoid(distance)
-            
-            image_test = []
-            label_test = []
-            index = 1
-            
-            for i in range(30000/50):
-                print('------validation here------')
-                num_of_true = 0
-                for t in range(0,abs(int(DEV_NUMBER / 50))):
-                    val_distance_district = sess.run([distance,sigmoid_distance],
-                                            feed_dict={left: left_dev_arr[50*t:50*(t+1),:,:,:], right: right_dev_arr[50*t:50*(t+1),:,:,:], label: similar_dev_arr[50*t:50*(t+1)]})
-                    
-                    index = 0
-                    
-                    for j in val_distance_district[0]:
-                        if j >= 0:
-                            j = 1
-                        else:
-                            j = 0
-                        
-                        if j ==similar_dev_arr[50*t:50*(t+1)][index] :
-                            num_of_true += 1
-                        index += 1
+            distance_txt_file = os.path.join(distance_file,str(txt).strip())
+            f1 = open(distance_txt_file,'w')
+            num_of_pics = 0
+            output = ''
+            left_pic_arrs = []
+            right_pic_arrs = []
+            for line in comparison_pairs_path_line:
                 
-                print('测试集的正确率为：' + str(1.0*num_of_true/2000))
-
-    
-                    image_test = []
-                    label_test = []
-
-            
-            
-    
+                left_right = line.strip().split(' ')
+                left_pic = Image.open(left_right[0])
+                left_pic_arr = np.asarray(left_pic)
+                left_pic_arr = left_pic_arr.reshape((72,72,3))
+                left_pic_arrs.append(left_pic_arr)
+                
+                right_pic = Image.open(left_right[1])
+                right_pic_arr = np.asarray(right_pic)
+                right_pic_arr = right_pic_arr.reshape((72,72,3))
+                right_pic_arrs.append(right_pic_arr)
+                
+                if num_of_pics % 100 ==0 or num_of_pics == 25360 and num_of_pics !=0:
+                    output_distance = sess.run([distance], feed_dict={left: left_pic_arrs, right: right_pic_arrs})
+                    for some in output_distance[0]:
+                        output = output + str(some[0]) +'\n'
+                    left_pic_arrs = []
+                    right_pic_arrs = []
+                    
+                num_of_pics += 1
+                if(num_of_pics % 1000 ==0 or num_of_pics == 25360):
+                    print('现在正在处理测试集的第'+str(num_of_test_pic)+'/7960张图片的第'+str(num_of_pics)+'/25361个对比组')
+            print(len(output.strip().split('\n')))
+            f1.write(output)
+            f1.close()
         
-    
-
 if __name__ == '__main__' :
-    pairs_dir = './datas/test_pair_lists/'
-    
-    
-    process = 3
-    while(process != 0 and process != 1):
-        process = eval(input('请输入是否初始化图片和产生对比对\n输入0表示不处理\n输入1表示处理\n请输入：'))
-        if(process != 0 and process != 1):
-            print('\n输入错误，请重新输入\n')
-    
-    if( process == 1):
-        test_pic_processing()
-        test_pairs_generation(transformed_images,transformed_train_images)
-        
-    for path,dirs,files in os.walk(pairs_dir):
-        break
-        
+    main()
     

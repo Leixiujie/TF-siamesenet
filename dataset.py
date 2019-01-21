@@ -7,11 +7,15 @@ DEV_NUMBER = FLAGS.DEV_NUMBER
 BASE_PATH = FLAGS.BASE_PATH
 batch_size = FLAGS.batch_size
 
+if not os.path.exists(FLAGS.negative_file):
+        os.makedirs(FLAGS.negative_file)
         
 negative_pairs_path_file = open(FLAGS.negative_file, 'r')
 negative_pairs_path_lines = negative_pairs_path_file.readlines()
 positive_pairs_path_file = open(FLAGS.positive_file, 'r')
 positive_pairs_path_lines = positive_pairs_path_file.readlines()
+print(len(negative_pairs_path_lines))
+print(len(positive_pairs_path_lines))
 
 print('mark: loaded positive_negative files')
 left_image_path_list = []

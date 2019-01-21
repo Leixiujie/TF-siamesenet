@@ -91,7 +91,7 @@ def generation():
             if (id_num != id_nums[index]) & flag:
                 f4.write(str(paths[now]) + ' ' + str(paths[index]) + '\n')
                 flag = False
-            random_index = random.randint(1,2700)
+            random_index = random.randint(1,50)
             index += random_index
         now += 1
         
