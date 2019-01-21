@@ -3,6 +3,7 @@ from PIL import Image
 from config import FLAGS
 import os
 
+
 DEV_NUMBER = FLAGS.DEV_NUMBER
 BASE_PATH = FLAGS.BASE_PATH
 batch_size = FLAGS.batch_size

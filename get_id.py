@@ -82,7 +82,8 @@ def get_idds(idds,fies):
         for i in idd:
             Id =Id + str(ids[i]) + ' '
             Image = (pairs[i].strip().split(' ')[1]).split('/')[2]
-    
+        Id = Id.strip()
+        Image = Image.strip()
         writer.writerow((Image,Id))
         tt += 1
         if (tt % 50 ==0):

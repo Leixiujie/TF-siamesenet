@@ -35,7 +35,7 @@ def main():
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=20)
-        saver.restore(sess, './checkpoint/model_21000.ckpt')                  #此处输入要续接的模型
+        saver.restore(sess, './checkpoint/model_1000.ckpt')                  #此处输入要续接的模型
         
         
         base_path = './datas/'
@@ -50,6 +50,7 @@ def main():
             os.makedirs(distance_file)
             
         num_of_test_pic = 0
+        time1 = 0
         for txt in files:
             num_of_test_pic += 1
             txt_path = os.path.join(pairs_path,str(txt).strip())
@@ -66,16 +67,18 @@ def main():
                 
                 left_right = line.strip().split(' ')
                 left_pic = Image.open(left_right[0])
-                left_pic_arr = np.asarray(left_pic)
+                left_pic_arr = np.asarray(left_pic)/255.0
                 left_pic_arr = left_pic_arr.reshape((72,72,3))
+                
                 left_pic_arrs.append(left_pic_arr)
                 
                 right_pic = Image.open(left_right[1])
-                right_pic_arr = np.asarray(right_pic)
+                right_pic_arr = np.asarray(right_pic)/255.0
                 right_pic_arr = right_pic_arr.reshape((72,72,3))
                 right_pic_arrs.append(right_pic_arr)
                 
                 if num_of_pics % 100 ==0 or num_of_pics == 25360 and num_of_pics !=0:
+                    
                     output_distance = sess.run([distance], feed_dict={left: left_pic_arrs, right: right_pic_arrs})
                     for some in output_distance[0]:
                         output = output + str(some[0]) +'\n'
