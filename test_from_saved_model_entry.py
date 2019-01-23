@@ -6,6 +6,8 @@ import os
 import numpy as np
 import time
 
+compare_batch = 50
+
 def main():
     logging.basicConfig(level=logging.DEBUG,
                         format="%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s",
@@ -80,26 +82,29 @@ def main():
                 
             num_of_test_now = 0
             for left_img_arr in left_pic_arrs:
-                left_arrs_0 = []                       #用于前面的能凑够100的分组
-                left_arrs_1 = []                       #用于尾部那61个配对
-                for i in range(100):
+                left_arrs_0 = []                       #用于前面的能凑够compare_batch的分组
+                left_arrs_1 = []                       #用于尾部那无法凑够compare_batch的配对
+                for i in range(compare_batch):
                     left_arrs_0.append(left_img_arr)
-                for i in range(61):
+                for i in range(25361 % compare_batch):
                     left_arrs_1.append(left_img_arr)
+                
+                print(len(left_arrs_0))
+                print(len(left_arrs_1))
                 
                 
                 output = ''
                 validation_iteration = 0
                 time0 = time.time()
-                while(validation_iteration < 254):          #把每一个test图片和train的图片跑一遍
+                while(validation_iteration < (int(25361/compare_batch)+1)):          #把每一个test图片和train的图片跑一遍
                     iii = 0
-                    if validation_iteration < 253:
+                    if 25361 - validation_iteration*compare_batch >= compare_batch:
                                                 
-                        right_arrs_0 = right_pic_arrs[validation_iteration*100:(validation_iteration+1)*100]
+                        right_arrs_0 = right_pic_arrs[validation_iteration*compare_batch:(validation_iteration+1)*compare_batch]
                         output_distance = sess.run([distance], feed_dict={left:left_arrs_0 ,
                                                        right: right_arrs_0})
                     else:
-                        right_arr_1 = right_pic_arrs[validation_iteration*100:]
+                        right_arr_1 = right_pic_arrs[validation_iteration*compare_batch:]
                         output_distance = sess.run([distance], feed_dict={
                                 left: left_arrs_1, 
                                 right: right_arr_1})
@@ -108,7 +113,7 @@ def main():
                         output = output + str(some[0]) +' '
                     validation_iteration += 1
                     if validation_iteration % 5 == 0 :
-                        print('当前处于第'+str(num_of_test_now)+'/7960测试张图片的'+str(validation_iteration*100)+'/25361张')
+                        print('当前处于第'+str(num_of_test_now)+'/7960测试张图片的'+str(validation_iteration*compare_batch)+'/25361张')
                     
                 output = output +'\n\n\n'
                 f1.write(output)
