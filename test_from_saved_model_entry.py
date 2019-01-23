@@ -4,7 +4,7 @@ from PIL import Image
 import logging
 import os
 import numpy as np
-
+import time
 
 def main():
     logging.basicConfig(level=logging.DEBUG,
@@ -39,9 +39,6 @@ def main():
         
         
         base_path = './datas/'
-        pairs_path = os.path.join(base_path,'test_pair_lists')
-        for path,dirs,files in os.walk(pairs_path):
-            break
         
         distance_file = os.path.join(base_path,'distance_file/')
         
@@ -49,48 +46,75 @@ def main():
         if not os.path.exists(distance_file):
             os.makedirs(distance_file)
             
-        num_of_test_pic = 0
-        time1 = 0
-        for txt in files:
-            num_of_test_pic += 1
-            txt_path = os.path.join(pairs_path,str(txt).strip())
-            comparison_file = open(txt_path, 'r')
-            comparison_pairs_path_line = comparison_file.readlines()
-            
-            distance_txt_file = os.path.join(distance_file,str(txt).strip())
+        for txt in range(1):
+            distance_txt_file = os.path.join(distance_file,'distance_all.txt')
             f1 = open(distance_txt_file,'w')
-            num_of_pics = 0
-            output = ''
             left_pic_arrs = []
             right_pic_arrs = []
-            for line in comparison_pairs_path_line:
+            left_path = './new_test/'
+            right_path = './new_train/'
+            
+            for left_path,left_dirs,left_files in os.walk(left_path):
+                break
+            
+            right_filess = open('./datas/dataset_path.txt','r')
+            right_files = right_filess.readline()
+            right_filess.close()
+            right_files = right_files.strip().split(' ')
+            
+            
+            for img in left_files:
+                 img_path = os.path.join(left_path,str(img).strip())
+                 image = Image.open(img_path)
+                 image_arr = np.asarray(image)/255.0
+                 image_arr = image_arr.reshape((72,72,3))
+                 left_pic_arrs.append(image_arr)
+            
+            
+            for img in right_files:
+                img_path = os.path.join(right_path,str(img).strip())
+                image = Image.open(img_path)
+                image_arr = np.asarray(image)/255.0
+                image_arr = image_arr.reshape((72,72,3))
+                right_pic_arrs.append(image_arr)
                 
-                left_right = line.strip().split(' ')
-                left_pic = Image.open(left_right[0])
-                left_pic_arr = np.asarray(left_pic)/255.0
-                left_pic_arr = left_pic_arr.reshape((72,72,3))
+            num_of_test_now = 0
+            for left_img_arr in left_pic_arrs:
+                left_arrs_0 = []                       #用于前面的能凑够100的分组
+                left_arrs_1 = []                       #用于尾部那61个配对
+                for i in range(100):
+                    left_arrs_0.append(left_img_arr)
+                for i in range(61):
+                    left_arrs_1.append(left_img_arr)
                 
-                left_pic_arrs.append(left_pic_arr)
                 
-                right_pic = Image.open(left_right[1])
-                right_pic_arr = np.asarray(right_pic)/255.0
-                right_pic_arr = right_pic_arr.reshape((72,72,3))
-                right_pic_arrs.append(right_pic_arr)
-                
-                if num_of_pics % 100 ==0 or num_of_pics == 25360 and num_of_pics !=0:
+                output = ''
+                validation_iteration = 0
+                time0 = time.time()
+                while(validation_iteration < 254):          #把每一个test图片和train的图片跑一遍
+                    iii = 0
+                    if validation_iteration < 253:
+                                                
+                        right_arrs_0 = right_pic_arrs[validation_iteration*100:(validation_iteration+1)*100]
+                        output_distance = sess.run([distance], feed_dict={left:left_arrs_0 ,
+                                                       right: right_arrs_0})
+                    else:
+                        right_arr_1 = right_pic_arrs[validation_iteration*100:]
+                        output_distance = sess.run([distance], feed_dict={
+                                left: left_arrs_1, 
+                                right: right_arr_1})
                     
-                    output_distance = sess.run([distance], feed_dict={left: left_pic_arrs, right: right_pic_arrs})
                     for some in output_distance[0]:
-                        output = output + str(some[0]) +'\n'
-                    left_pic_arrs = []
-                    right_pic_arrs = []
+                        output = output + str(some[0]) +' '
+                    validation_iteration += 1
+                    if validation_iteration % 5 == 0 :
+                        print('当前处于第'+str(num_of_test_now)+'/7960测试张图片的'+str(validation_iteration*100)+'/25361张')
                     
-                num_of_pics += 1
-                if(num_of_pics % 1000 ==0 or num_of_pics == 25360):
-                    print('现在正在处理测试集的第'+str(num_of_test_pic)+'/7960张图片的第'+str(num_of_pics)+'/25361个对比组')
-            print(len(output.strip().split('\n')))
-            f1.write(output)
-            f1.close()
+                output = output +'\n\n\n'
+                f1.write(output)
+                num_of_test_now += 1
+                
+        f1.close()
         
 if __name__ == '__main__' :
     main()
