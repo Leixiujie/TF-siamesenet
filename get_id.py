@@ -1,35 +1,15 @@
-import os
-import csv
 import xlrd
+import csv
+import os
 
-base_path = './datas/distance_file/'
-pair_paths_base = './datas/test_pair_lists/'
-
-
-def find_biggest_arr(files):
-    idds = []
-    tt = 0
-    for txt_name in files:
-        txt_path = os.path.join(base_path,str(txt_name).strip())
-        f = open(txt_path,'r')
-        distances = f.readlines()
-    
-        idd = [0,1,2,3,4]
-        num = 5
-        
-        for distance in distances[5:]:
-            minn,minn_index = get_minn(distances,idd)
-            if(minn < eval(distance)):
-                idd[minn_index] = num
-            num += 1
-        f.close()
-        idds.append(idd)
-        if (tt % 10 == 0):
-            print('正在找第'+str(tt)+'/7960个图片的最大五个可能id编号')
-        tt += 1
-    print(len(idds))
-    
-    return idds
+def get_sort(distance,idd):
+    for i in range(5):
+        for j in range(i+1,5):
+            if(eval(distance[idd[i]]) < eval(distance[idd[j]])):
+                t = idd[i]
+                idd[i] = idd[j]
+                idd[j] = t
+    return idd
 
 def get_minn(distances,idd):
     minn = eval(distances[idd[0]])
@@ -42,68 +22,71 @@ def get_minn(distances,idd):
         t += 1
     return minn,idd_index
 
-def get_idds(idds,fies):
+def find_biggest_arr(distances):
+    idd = [0,1,2,3,4]
+    num = 5
+        
+    for distance in distances[5:]:
+        minn,minn_index = get_minn(distances,idd)
+        if(minn < eval(distance)):
+            idd[minn_index] = num
+        num += 1
+    idd = get_sort(distances,idd)                #返回排过序的idd
+    print(idd)
+    return idd
+
+def get_max(file_name):
+    f = open(file_name)
+    distances = f.readlines()
+    print(len(distances)/3)
+    text_row = 0
+    idd = []
+    idds = []
+    while (text_row < int(len(distances))):          #len(distances)
+        row = distances[text_row]
+        row = row.strip().split(' ')
+        idd = find_biggest_arr(row)
+        idds.append(idd)
+        text_row += 3
+        if text_row % 15 == 0:
+            print('当前正在处理第'+str(text_row/3)+'个图片的ID')
+    return idds
+
+
     
-    #打开编号对应id文件
-    workbook = xlrd.open_workbook('train.csv')
-    imginfo = workbook.sheet_by_index(0)
-    ids = imginfo.col_values(1)
-    #打开要写的csv文件
+    
+    
+def get_idds(idds):
     f = open('example.csv', 'w', newline='')
     writer = csv.writer(f)
     writer.writerow(('Image','Id'))
-    tt = 0
-    for txt_name in files:
-        pair_paths = os.path.join(pair_paths_base,str(txt_name).strip())
-    
-    
-    
-        f = open(pair_paths,'r')
-        pairs = f.readlines()
-        f.close()
-        txt_path = os.path.join(base_path,str(txt_name).strip())
-        f = open(txt_path,'r')
-        distance = f.readlines()
-        f.close()
-        
-        idd = idds[tt]
-        #排序 将他们的distance大小从小到大排出
-        for i in range(5):
-            for j in range(i+1,5):
-                if(eval(distance[idd[i]]) < eval(distance[idd[j]])):
-                    t = idd[i]
-                    idd[i] = idd[j]
-                    idd[j] = t
-    
-    
-    
-        #输出排序后的结果
-        Id = ''
-        for i in idd:
-            Id =Id + str(ids[i]) + ' '
-            Image = (pairs[i].strip().split(' ')[1]).split('/')[2]
-        Id = Id.strip()
-        Image = Image.strip()
-        writer.writerow((Image,Id))
-        tt += 1
-        if (tt % 50 ==0):
-            print('正在写第'+str(tt)+'/7960个图片的csv信息')
-    
-    
-        
-        
-        
+    for path,dirs,files in os.walk('./new_test/'):
+        break
+    for path,dirs,train_files in os.walk('./new_train/'):
+        break
+    f2 = open('./datas/dataset_path.txt')
+    paths = f2.readline()
+    paths = paths.strip().split(' ')
+    workbook = xlrd.open_workbook('train.csv')     #从按图片排序的csv中读取
+    imginfo = workbook.sheet_by_index(0)
+    file_train = imginfo.col_values(1)               #此处file_train 应该为id集合
+    file_num = 0
+    for file in files[:int(len(idds))]:  
+        what_to_write = ''
+        idd = idds[file_num]
+
+        for Id in idd:
+            name = paths[Id]
+            print(name)
+            print(Id)
+            what_to_write = what_to_write + str(file_train[Id].strip()) +' '
+        print()
+        writer.writerow((file.strip(),what_to_write.strip()))
+        file_num += 1
+            
 
 if __name__ == '__main__':
-    for path,dirs,files in os.walk(base_path):
-        break
-
-    idds = find_biggest_arr(files)
-    print(len(idds))
-    get_idds(idds,files)
-
-
-
-
-
-
+    txt_name = 'distance_all_test.txt'
+    txt_name = os.path.join('./datas/distance_file/',txt_name)
+    idds = get_max(txt_name)
+    get_idds(idds)
