@@ -2,7 +2,6 @@ import numpy as np
 from PIL import Image
 from config import FLAGS
 import os
-import gc
 
 DEV_NUMBER = FLAGS.DEV_NUMBER
 BASE_PATH = FLAGS.BASE_PATH
@@ -28,7 +27,8 @@ for line in negative_pairs_path_lines:
     left_image_path_list.append(left_right[0])
     right_image_path_list.append(left_right[1])
     similar_list.append(0)
-gc.collect(negative_pairs_path_lines)
+negative_pairs_path_lines = []
+print('positive pairs loaded')
 
 
 for line in positive_pairs_path_lines:
@@ -36,7 +36,7 @@ for line in positive_pairs_path_lines:
     left_image_path_list.append(left_right[0])
     right_image_path_list.append(left_right[1])
     similar_list.append(1)  
-gc.collect(positive_pairs_path_lines)
+positive_pairs_path_lines = []
 
 print('mark: added positve and negative array ')
 left_image_path_list = np.asarray(left_image_path_list)
@@ -46,14 +46,20 @@ similar_list = np.asarray(similar_list)
 np.random.seed(10)
 shuffle_indices = np.random.permutation(np.arange(len(similar_list)))
 left_shuffled = left_image_path_list[shuffle_indices]
+left_image_path_list = []
 right_shuffled = right_image_path_list[shuffle_indices]
+right_image_path_list = []
 similar_shuffled = similar_list[shuffle_indices]
+similar_list = []
 
 left_train = left_shuffled[:DEV_NUMBER]
 left_dev = left_shuffled[DEV_NUMBER:]
+left_shuffled = []
 right_train = right_shuffled[:DEV_NUMBER]
 right_dev = right_shuffled[DEV_NUMBER:]
+right_shuffled = []
 similar_train, similar_dev = similar_shuffled[:DEV_NUMBER], similar_shuffled[DEV_NUMBER:]
+similar_shuffled = []
 print('mark: shuffle completed')
 
 def vectorize_imgs(img_path_list):
