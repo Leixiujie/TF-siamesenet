@@ -1,26 +1,29 @@
-import xlrd
+import csv
 import os
 
 def csv_deal(file_name):
     if not os.path.exists('./datas/'):
         os.makedirs('./datas/')
     
-    workbook = xlrd.open_workbook(file_name)
-    imginfo = workbook.sheet_by_index(0)
-    
-    path = imginfo.col_values(0)
-    ids = imginfo.col_values(1)
-    
-    
     f1 = open("./datas/dataset_deal.txt",'w')
     f2 = open("./datas/dataset_id_num.txt",'w')  
     f3 = open("./datas/dataset_path.txt",'w')
     
+    workbook = csv.reader(open('new_train.csv','r'))
+    print(workbook)
+    ids = []
+    path = []
+    for info in workbook:
+        path.append(info[0])
+        ids.append(info[1])
+    
+    
     id_onehot = []
     iid = ids[0]
     id_onehot.append(iid)
-    i = 0
-    for _id in ids:
+    i = 1
+    
+    for _id in ids[1:]:
         if _id != iid:
             iid = _id
             id_onehot.append(iid)
@@ -38,9 +41,9 @@ def csv_deal(file_name):
     f2.close()
     f3.close()
     return path,ids,id_onehot
-
+    
     
 if __name__ == '__main__':
-    path = 'train.csv'
-    path,ids,id_onehot = csv_deal(path)
+    path = 'new_train.csv'
+    csv_deal(path)
     

@@ -6,9 +6,8 @@ Created on Thu Jan 10 20:54:13 2019
 """
 import csv_deal
 import random
-import os
 
-file_name = 'train.csv'
+file_name = 'new_train.csv'
 
 def generation():
     
@@ -23,6 +22,11 @@ def generation():
     id_nums = nums_line.strip().split(' ')
     paths_line = f2.readline()
     paths = paths_line.strip().split(' ')
+    
+    transform_now = 0
+    for id_num in id_nums:
+        id_nums[transform_now] = eval(id_num)
+        
 
     
     '''-------------------以下是positive生成程序---------------------------'''
@@ -65,11 +69,10 @@ def generation():
         if index == 1:
             for i in range(times):
                 for j in range(i,times):
-                    f3.write(str(paths[start+i]) + ' ' + str(paths[start+j]) + '\n')
+                    if(i != j):
+                        f3.write(str(paths[start+i]) + ' ' + str(paths[start+j]) + '\n')
             start += times
         
-        if idnum == 5005:
-            break
     
     
     '''-------------------以下是negative生成程序---------------------------'''
@@ -83,32 +86,27 @@ def generation():
         index = now
         flag = True
         
-        while(index < 15697):
+        while(index < 251152):
             iid = id_nums[index]
             if (iid != id_nums[index - random_index]):
                 flag = True
                 
-            if (id_num != id_nums[index]) & flag:
+            if (id_num != id_nums[index]) & flag :
                 f4.write(str(paths[now]) + ' ' + str(paths[index]) + '\n')
                 flag = False
-            random_index = random.randint(1,50)
+            random_index = random.randint(1500,1700)
             index += random_index
         now += 1
         
         if now % 100 ==0:
             print("现在正在处理第"+str(now)+"个样本的负样本")
-            
-
-
-
-       
                     
     f1.close()
     f2.close()
     f3.close()
     f4.close()        
-    
-    
+
+
 def main():
     csv_deal.csv_deal(file_name)
     generation()

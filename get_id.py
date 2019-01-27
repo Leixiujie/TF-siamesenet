@@ -86,7 +86,7 @@ def get_idds(idds):
             
 
 if __name__ == '__main__':
-    txt_name = 'distance_all_test.txt'
+    txt_name = 'distance_all_bak.txt'
     txt_name = os.path.join('./datas/distance_file/',txt_name)
     idds = get_max(txt_name)
     get_idds(idds)

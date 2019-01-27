@@ -6,7 +6,7 @@ import os
 import numpy as np
 import time
 
-compare_batch = 50
+compare_batch = 320
 
 def main():
     logging.basicConfig(level=logging.DEBUG,
@@ -112,13 +112,15 @@ def main():
                     for some in output_distance[0]:
                         output = output + str(some[0]) +' '
                     validation_iteration += 1
-                    if validation_iteration % 5 == 0 :
+                    if validation_iteration % 10 == 0 :
                         print('当前处于第'+str(num_of_test_now)+'/7960测试张图片的'+str(validation_iteration*compare_batch)+'/25361张')
                     
                 output = output +'\n\n\n'
                 f1.write(output)
                 num_of_test_now += 1
-                
+                if (num_of_test_now % 1 ==0):                        #每500组写进txt一次
+                    f1.close()
+                    f1 = open(distance_txt_file,'a+')
         f1.close()
         
 if __name__ == '__main__' :

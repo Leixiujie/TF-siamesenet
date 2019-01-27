@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 from config import FLAGS
 import os
-
+import gc
 
 DEV_NUMBER = FLAGS.DEV_NUMBER
 BASE_PATH = FLAGS.BASE_PATH
@@ -28,12 +28,16 @@ for line in negative_pairs_path_lines:
     left_image_path_list.append(left_right[0])
     right_image_path_list.append(left_right[1])
     similar_list.append(0)
+gc.collect(negative_pairs_path_lines)
+
 
 for line in positive_pairs_path_lines:
     left_right = line.strip().split(' ')
     left_image_path_list.append(left_right[0])
     right_image_path_list.append(left_right[1])
-    similar_list.append(1)
+    similar_list.append(1)  
+gc.collect(positive_pairs_path_lines)
+
 print('mark: added positve and negative array ')
 left_image_path_list = np.asarray(left_image_path_list)
 right_image_path_list = np.asarray(right_image_path_list)

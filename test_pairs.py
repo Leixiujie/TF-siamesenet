@@ -8,7 +8,7 @@ transformed_images = './new_test/'
 transformed_train_images = './new_train/'
 
 def test_pic_processing():
-    normal.all_pics_processing(root , transformed_images)
+    normal.all_pics_processing(root , transformed_images,enhance = False)
     print('--------图片处理完成-------------')
     
 def test_pairs_generation(test_images_path):
