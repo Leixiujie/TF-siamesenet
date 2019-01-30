@@ -86,7 +86,7 @@ def generation():
         index = now
         flag = True
         
-        while(index < 251152):
+        while(index < 627880):
             iid = id_nums[index]
             if (iid != id_nums[index - random_index]):
                 flag = True
@@ -94,7 +94,7 @@ def generation():
             if (id_num != id_nums[index]) & flag :
                 f4.write(str(paths[now]) + ' ' + str(paths[index]) + '\n')
                 flag = False
-            random_index = random.randint(1500,1700)
+            random_index = random.randint(1500,2000)
             index += random_index
         now += 1
         

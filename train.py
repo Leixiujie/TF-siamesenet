@@ -25,14 +25,14 @@ def main():
     
     
     
-    train_step = tf.train.AdamOptimizer(0.0001).minimize(loss, global_step=global_step) #小数点后7个0
+    train_step = tf.train.AdamOptimizer(0.000005).minimize(loss, global_step=global_step) #小数点后7个0
     print("the model has been built")
     
     saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=20)
-        saver.restore(sess, './checkpoint/model_6000.ckpt')                  #此处输入要续接的模型
+        saver.restore(sess, './checkpoint/model_31000.ckpt')                  #此处输入要续接的模型
     
         # setup tensorboard
         tf.summary.scalar('step', global_step)
