@@ -6,6 +6,7 @@ Created on Thu Jan 10 20:54:13 2019
 """
 import csv_deal
 import random
+import time
 
 file_name = 'new_train.csv'
 
@@ -26,6 +27,7 @@ def generation():
     transform_now = 0
     for id_num in id_nums:
         id_nums[transform_now] = eval(id_num)
+        transform_now += 1
         
 
     
@@ -80,13 +82,21 @@ def generation():
     '''
     和自己id不同的配对,和每条鲸鱼的图片仅配对一张图片
     '''    
+    stop = 0
+    for id_num in id_nums:
+        if (int(id_num) == 5005):
+            break
+        stop += 1
+        
+    print(stop)
+    time.sleep(5)
     now = 0
     random_index = 0
     for id_num in id_nums:
         index = now
         flag = True
         
-        while(index < 298243):
+        while(index < stop):
             iid = id_nums[index]
             if (iid != id_nums[index - random_index]):
                 flag = True

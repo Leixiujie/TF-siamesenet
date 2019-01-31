@@ -4,3 +4,8 @@ train
 test
 train.rar
 test.rar
+__pycache__
+checkpoint
+datas
+new_train
+new_test
