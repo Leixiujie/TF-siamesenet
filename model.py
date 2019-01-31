@@ -1,8 +1,10 @@
 import tensorflow as tf
 
 variables_dict = {
-    "hidden_Weights": tf.Variable(tf.truncated_normal([144, 128], stddev=0.1), name="hidden_Weights"),
-    "hidden_biases": tf.Variable(tf.constant(0.1, shape=[128]), name="hidden_biases")
+    "hidden_Weights_1": tf.Variable(tf.truncated_normal([144, 128], stddev=0.1), name="hidden_Weights_1"),
+    "hidden_biases_1": tf.Variable(tf.constant(0.1, shape=[128]), name="hidden_biases_1"),
+    "hidden_Weights_2": tf.Variable(tf.truncated_normal([128, 64], stddev=0.1), name="hidden_Weights_2"),
+    "hidden_biases_2": tf.Variable(tf.constant(0.1, shape=[64]), name="hidden_biases_2")
 }
 
 
@@ -41,16 +43,19 @@ class SIAMESE(object):
 
             flattened = tf.contrib.layers.flatten(pool5)
 
-            with tf.variable_scope("local") as scope:
-                output = tf.nn.relu(tf.matmul(flattened, variables_dict["hidden_Weights"]) +
-                                    variables_dict["hidden_biases"], name=scope.name)
-
+            with tf.variable_scope("local1") as scope:
+                output = tf.nn.leaky_relu(tf.matmul(flattened, variables_dict["hidden_Weights_1"]) +
+                                    variables_dict["hidden_biases_1"],alpha = 0.2,name=scope.name)
+            
+            with tf.variable_scope("local2") as scope:
+                output = tf.nn.leaky_relu(tf.matmul(output, variables_dict["hidden_Weights_2"]) +
+                                    variables_dict["hidden_biases_2"],alpha = 0.2, name=scope.name)
         return output
 
     def contrastive_loss(self, model1, model2, y):
         with tf.name_scope("output"):
             output_difference = tf.abs(model1 - model2)
-            W = tf.Variable(tf.random_normal([128, 1], stddev=0.1), name='W')
+            W = tf.Variable(tf.random_normal([64, 1], stddev=0.1), name='W')
             b = tf.Variable(tf.zeros([1, 1]) + 0.1, name='b')
             y_ = tf.add(tf.matmul(output_difference, W), b, name='distance')
 

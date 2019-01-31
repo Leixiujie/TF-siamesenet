@@ -52,13 +52,13 @@ right_image_path_list = []
 similar_shuffled = similar_list[shuffle_indices]
 similar_list = []
 
-left_train = left_shuffled[:DEV_NUMBER]
+left_train = left_shuffled[(31000+196067)*64:DEV_NUMBER]
 left_dev = left_shuffled[DEV_NUMBER:]
 left_shuffled = []
-right_train = right_shuffled[:DEV_NUMBER]
+right_train = right_shuffled[(31000+196067)*64:DEV_NUMBER]
 right_dev = right_shuffled[DEV_NUMBER:]
 right_shuffled = []
-similar_train, similar_dev = similar_shuffled[:DEV_NUMBER], similar_shuffled[DEV_NUMBER:]
+similar_train, similar_dev = similar_shuffled[(31000+196067)*64:DEV_NUMBER], similar_shuffled[DEV_NUMBER:]
 similar_shuffled = []
 print('mark: shuffle completed')
 

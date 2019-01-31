@@ -86,7 +86,7 @@ def generation():
         index = now
         flag = True
         
-        while(index < 627880):
+        while(index < 298243):
             iid = id_nums[index]
             if (iid != id_nums[index - random_index]):
                 flag = True

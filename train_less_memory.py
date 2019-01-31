@@ -26,14 +26,17 @@ def main():
     
     
     
-    train_step = tf.train.AdamOptimizer(0.00005).minimize(loss, global_step=global_step) #小数点后7个0
+    train_step = tf.train.AdamOptimizer(0.0001).minimize(loss, global_step=global_step) #小数点后7个0
     print("the model has been built")
     
-    saver = tf.train.Saver()
+    #saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=20)
-        saver.restore(sess, './checkpoint/model_70000.ckpt')                  #此处输入要续接的模型
+        restore_file_name_path = './checkpoint/model_1000.ckpt'
+        
+        saver.restore(sess, restore_file_name_path)                  #此处输入要续接的模型
+        start = int(eval((((restore_file_name_path.strip().split('_'))[1]).strip().split('.'))[0]))
     
         # setup tensorboard
         tf.summary.scalar('step', global_step)
@@ -47,7 +50,7 @@ def main():
         for a,b,pairs_files in os.walk(pairs_base_path):
             break
         
-        pairs_txt_now = 0
+        pairs_txt_now = 8
         pairs_file = os.path.join(pairs_base_path,str(pairs_files[pairs_txt_now]).strip())
         pairs_txt_now += 1
         print("pairs files' name is " +str(pairs_file))
@@ -60,7 +63,7 @@ def main():
         # train iter
         idx = 0
         
-        for i in range(FLAGS.train_iter):
+        for i in range(start,FLAGS.train_iter):
             '''此处file_next_or_not表示是否把一对正负样本txt里的样本对遍历完，如果是则返回 '1' '''
             batch_left, batch_right, batch_similar, idx, file_next_or_not = get_batch_image_path(left_train, right_train, similar_train, idx)
             batch_left_arr, batch_right_arr, batch_similar_arr = \

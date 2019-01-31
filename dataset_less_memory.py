@@ -9,22 +9,19 @@ batch_size = FLAGS.batch_size
 
         
 
-
-print('mark: dividing the negative dataset')
-
 def dataset_divide():
     file_num = 0
-    for i in range(12):
+    for i in range(1):
         negative_pairs_path_file = open(FLAGS.negative_file, 'r')
         negative_pairs_path_lines = negative_pairs_path_file.readlines()
         if i != 11:
-            negative_pairs_path_lines = negative_pairs_path_lines[i*10000000:(i+1)*10000000]
+            negative_pairs_path_lines = negative_pairs_path_lines[i*25266336:(i+1)*25266336]
         else:
             negative_pairs_path_lines = negative_pairs_path_lines[i*10000000:]
         negative_pairs_path_file.close()
         positive_pairs_path_file = open(FLAGS.positive_file, 'r')
         positive_pairs_path_lines = positive_pairs_path_file.readlines()
-        positive_pairs_path_lines = positive_pairs_path_lines[i*10345231:(i+1)*10345231]
+        positive_pairs_path_lines = positive_pairs_path_lines[i*27931409:(i+1)*27931409]
         positive_pairs_path_file.close()
         print(len(negative_pairs_path_lines))
         print(len(positive_pairs_path_lines))
