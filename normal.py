@@ -67,9 +67,9 @@ def all_pics_processing(root , transformed_images,enhancement = True):
             image_fan.save(output_file)
             
             
-            #随机生成6组0~90
-            for i in range(4,10):
-                degree = np.random.randint(0,90)
+            #随机生成3组0~90
+            for i in range(4,6):
+                degree = np.random.randint(0,60)
                 new_pic_name = str(i) + '_' + str(pic_name).strip()
                 output_file = os.path.join(transformed_images,new_pic_name)
                 image_new = image.rotate(degree)
@@ -77,7 +77,7 @@ def all_pics_processing(root , transformed_images,enhancement = True):
                 
                 
             #生成0~-90度的随机旋转图片    
-            for i in range(10,16):
+            for i in range(6,10):
                 degree = np.random.randint(300,359)
                 new_pic_name = str(i) + '_' + str(pic_name).strip()
                 output_file = os.path.join(transformed_images,new_pic_name)
@@ -85,8 +85,8 @@ def all_pics_processing(root , transformed_images,enhancement = True):
                 image_new.save(output_file)
             
             #生成0~90度的带噪点随机旋转图片
-            for i in range(16,22):
-                degree = np.random.randint(0,90)
+            for i in range(10,13):
+                degree = np.random.randint(0,60)
                 new_pic_name = str(i) + '_' + str(pic_name).strip()
                 output_file = os.path.join(transformed_images,new_pic_name)
                 noise_level = np.random.randint(1,4)
@@ -94,7 +94,7 @@ def all_pics_processing(root , transformed_images,enhancement = True):
                 image_new.save(output_file)
             
             #生成0~-90度带噪点的随机角度旋转图片
-            for i in range(22,28):
+            for i in range(13,16):
                 degree = np.random.randint(300,359)
                 new_pic_name = str(i) + '_' + str(pic_name).strip()
                 output_file = os.path.join(transformed_images,new_pic_name)
@@ -102,8 +102,8 @@ def all_pics_processing(root , transformed_images,enhancement = True):
                 image_new = get_noise(image.rotate(degree),noise_level)
                 image_new.save(output_file)
             
-            #生成12组不同范围的剪切图片    
-            for i in range(28,40):
+            #生成3组不同范围的剪切图片    
+            for i in range(16,19):
                 pixel_need_to_cut_left = np.random.randint(8,20)
                 pixel_need_to_cut_right = np.random.randint(8,20)
                 pixel_need_to_cut_top = np.random.randint(10,20)
@@ -114,6 +114,54 @@ def all_pics_processing(root , transformed_images,enhancement = True):
                 output_file = os.path.join(transformed_images,new_pic_name)
                 image_new.save(output_file)
           
+            '''生成三组剪切一半图片,
+                cut_direction == 0则减去左半边，
+                为1则减去右边半边
+                为2则减去上半边，
+                为3则减去下半边
+            '''
+            for i in range(19,22):
+                cut_direction = np.random.randint(4)
+                if cut_direction == 0:
+                    pixel_need_to_cut_left = np.random.randint(20,40)
+                    pixel_need_to_cut_right = np.random.randint(0,5)
+                    pixel_need_to_cut_top = np.random.randint(1,10)
+                    pixel_need_to_cut_bottom = np.random.randint(1,10)
+                    image_new = image.crop((pixel_need_to_cut_left,pixel_need_to_cut_top,72 - pixel_need_to_cut_right,72 - pixel_need_to_cut_bottom))
+                    image_new = image_new.resize((72,72))
+                    new_pic_name = str(i) + '_' + str(pic_name).strip()
+                    output_file = os.path.join(transformed_images,new_pic_name)
+                    image_new.save(output_file)
+                elif cut_direction == 1:
+                    pixel_need_to_cut_left = np.random.randint(0,5)
+                    pixel_need_to_cut_right = np.random.randint(20,40)
+                    pixel_need_to_cut_top = np.random.randint(1,10)
+                    pixel_need_to_cut_bottom = np.random.randint(1,10)
+                    image_new = image.crop((pixel_need_to_cut_left,pixel_need_to_cut_top,72 - pixel_need_to_cut_right,72 - pixel_need_to_cut_bottom))
+                    image_new = image_new.resize((72,72))
+                    new_pic_name = str(i) + '_' + str(pic_name).strip()
+                    output_file = os.path.join(transformed_images,new_pic_name)
+                    image_new.save(output_file)
+                elif cut_direction == 2:
+                    pixel_need_to_cut_left = np.random.randint(0,10)
+                    pixel_need_to_cut_right = np.random.randint(1,10)
+                    pixel_need_to_cut_top = np.random.randint(20,40)
+                    pixel_need_to_cut_bottom = np.random.randint(1,5)
+                    image_new = image.crop((pixel_need_to_cut_left,pixel_need_to_cut_top,72 - pixel_need_to_cut_right,72 - pixel_need_to_cut_bottom))
+                    image_new = image_new.resize((72,72))
+                    new_pic_name = str(i) + '_' + str(pic_name).strip()
+                    output_file = os.path.join(transformed_images,new_pic_name)
+                    image_new.save(output_file)
+                elif cut_direction == 3:
+                    pixel_need_to_cut_left = np.random.randint(0,10)
+                    pixel_need_to_cut_right = np.random.randint(1,10)
+                    pixel_need_to_cut_top = np.random.randint(1,5)
+                    pixel_need_to_cut_bottom = np.random.randint(20,40)
+                    image_new = image.crop((pixel_need_to_cut_left,pixel_need_to_cut_top,72 - pixel_need_to_cut_right,72 - pixel_need_to_cut_bottom))
+                    image_new = image_new.resize((72,72))
+                    new_pic_name = str(i) + '_' + str(pic_name).strip()
+                    output_file = os.path.join(transformed_images,new_pic_name)
+                    image_new.save(output_file)
         else:
             if len(shape) == 2:
                 image = cv2.imread(pathss)
@@ -152,7 +200,7 @@ def csv_enhancement():
     
     for path in paths:
         path_num = 0
-        for i in range(40):
+        for i in range(22):
             path_name = str(path_num).strip()+'_'+str(path).strip()
             writer.writerow((path_name,idds[tt]))
             path_num += 1
