@@ -32,7 +32,7 @@ def main():
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=20)
-        saver.restore(sess, './checkpoint/model_31000.ckpt')                  #此处输入要续接的模型
+        saver.restore(sess, './checkpoint/model_39000.ckpt')                  #此处输入要续接的模型
     
         # setup tensorboard
         tf.summary.scalar('step', global_step)

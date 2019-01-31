@@ -89,7 +89,7 @@ def generation():
         stop += 1
         
     print(stop)
-    time.sleep(5)
+    time.sleep(50)
     now = 0
     random_index = 0
     for id_num in id_nums:
@@ -108,7 +108,7 @@ def generation():
             index += random_index
         now += 1
         
-        if now % 100 ==0:
+        if now % 1000 ==0 and now < stop:
             print("现在正在处理第"+str(now)+"个样本的负样本")
                     
     f1.close()
