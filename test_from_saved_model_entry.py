@@ -1,12 +1,13 @@
 from model import SIAMESE
 import tensorflow as tf
 from PIL import Image
+import xlrd
 import logging
 import os
 import numpy as np
 import time
 
-compare_batch = 320
+compare_batch = 320                     #compare batch尽量取10的倍数，不要让25361整除
 
 def main():
     logging.basicConfig(level=logging.DEBUG,
@@ -28,8 +29,6 @@ def main():
     
     global_step = tf.Variable(0, trainable=False)
     
-    
-    
     train_step = tf.train.AdamOptimizer(0.0000001).minimize(loss, global_step=global_step) #小数点后7个0
     print("the model has been built")
     
@@ -37,7 +36,7 @@ def main():
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=20)
-        saver.restore(sess, './checkpoint/model_1000.ckpt')                  #此处输入要续接的模型
+        saver.restore(sess, './checkpoint/model_151000.ckpt')                  #此处输入要续接的模型
         
         
         base_path = './datas/'
@@ -47,28 +46,48 @@ def main():
         
         if not os.path.exists(distance_file):
             os.makedirs(distance_file)
+        '''          
+        此段是单独测试某两张图片是否是同一条鲸鱼的程序  
+        while(True):
+            left_pic = (input("请输入左边样本（单个）")).strip()
+            img_path = os.path.join('./new_train/',left_pic)
+            left_img = Image.open(img_path)
+            image_arr = np.asarray(left_img,dtype='float32')/255.
+            left_image_arr = image_arr.reshape((1,72,72,3))
             
+            right_pic = (input("请输入右边样本（单个）")).strip()
+            img_path = os.path.join('./new_train/',right_pic)
+            right_img = Image.open(img_path)
+            image_arr = np.asarray(right_img,dtype='float32')/255.
+            right_image_arr = image_arr.reshape((1,72,72,3))
+            
+            output_distance = sess.run([distance], feed_dict={left:left_image_arr ,right: right_image_arr})
+            print(output_distance)
+            print(output_distance[0][0])
+        '''            
+            
+            
+        
         for txt in range(1):
             distance_txt_file = os.path.join(distance_file,'distance_all.txt')
             f1 = open(distance_txt_file,'w')
             left_pic_arrs = []
             right_pic_arrs = []
-            left_path = './new_test/'
-            right_path = './new_train/'
+            left_path = './test_test/'
+            right_path = './test_train/'
             
             for left_path,left_dirs,left_files in os.walk(left_path):
                 break
             
-            right_filess = open('./datas/dataset_path.txt','r')
-            right_files = right_filess.readline()
-            right_filess.close()
-            right_files = right_files.strip().split(' ')
+            workbook = xlrd.open_workbook('train.csv')     #从按图片排序的csv中读取
+            imginfo = workbook.sheet_by_index(0)
+            right_files = imginfo.col_values(0)
             
             
             for img in left_files:
                  img_path = os.path.join(left_path,str(img).strip())
                  image = Image.open(img_path)
-                 image_arr = np.asarray(image)/255.0
+                 image_arr = np.asarray(image,dtype='float32')/255.
                  image_arr = image_arr.reshape((72,72,3))
                  left_pic_arrs.append(image_arr)
             
@@ -76,7 +95,7 @@ def main():
             for img in right_files:
                 img_path = os.path.join(right_path,str(img).strip())
                 image = Image.open(img_path)
-                image_arr = np.asarray(image)/255.0
+                image_arr = np.asarray(image,dtype='float32')/255.
                 image_arr = image_arr.reshape((72,72,3))
                 right_pic_arrs.append(image_arr)
                 
@@ -98,7 +117,7 @@ def main():
                 time0 = time.time()
                 while(validation_iteration < (int(25361/compare_batch)+1)):          #把每一个test图片和train的图片跑一遍
                     iii = 0
-                    if 25361 - validation_iteration*compare_batch >= compare_batch:
+                    if (25361 - validation_iteration*compare_batch) >= compare_batch:
                                                 
                         right_arrs_0 = right_pic_arrs[validation_iteration*compare_batch:(validation_iteration+1)*compare_batch]
                         output_distance = sess.run([distance], feed_dict={left:left_arrs_0 ,
@@ -118,11 +137,11 @@ def main():
                 output = output +'\n\n\n'
                 f1.write(output)
                 num_of_test_now += 1
-                if (num_of_test_now % 1 ==0):                        #每500组写进txt一次
+                if (num_of_test_now % 10 ==0):                        #每10组写进txt一次
                     f1.close()
                     f1 = open(distance_txt_file,'a+')
         f1.close()
-        
+       
 if __name__ == '__main__' :
     main()
     
