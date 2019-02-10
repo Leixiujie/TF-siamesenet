@@ -25,15 +25,18 @@ def main():
     
     
     
-    train_step = tf.train.AdamOptimizer(0.000005).minimize(loss, global_step=global_step) #小数点后7个0
+    train_step = tf.train.AdamOptimizer(0.0000001).minimize(loss, global_step=global_step) #小数点后7个0
     print("the model has been built")
     
     saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=20)
-        saver.restore(sess, './checkpoint/model_39000.ckpt')                  #此处输入要续接的模型
-    
+        restore_file = './checkpoint/model_292000.ckpt'
+        saver.restore(sess, restore_file)                #此处输入要续接的模型
+        start = int(eval(((restore_file.strip().split('_'))[1].strip().split('.'))[0]))
+        
+        
         # setup tensorboard
         tf.summary.scalar('step', global_step)
         tf.summary.scalar('loss', loss)
@@ -46,7 +49,7 @@ def main():
         # train iter
         idx = 0
         
-        for i in range(FLAGS.train_iter):
+        for i in range(start,FLAGS.train_iter):
             
             batch_left, batch_right, batch_similar, idx = get_batch_image_path(left_train, right_train, similar_train, idx)
             batch_left_arr, batch_right_arr, batch_similar_arr = \
@@ -61,9 +64,9 @@ def main():
             if (i + 1) % FLAGS.validation_step == 0:
                 print('------validation here------')
                 num_of_true = 0
-                for t in range(0,abs(int(DEV_NUMBER / 50))):
+                for t in range(0,abs(int(DEV_NUMBER / 100))):
                     val_distance_district = sess.run([distance],
-                                            feed_dict={left: left_dev_arr[50*t:50*(t+1),:,:,:], right: right_dev_arr[50*t:50*(t+1),:,:,:]})
+                                            feed_dict={left: left_dev_arr[100*t:100*(t+1),:,:,:], right: right_dev_arr[100*t:100*(t+1),:,:,:]})
                     index = 0
                     
                     for j in val_distance_district[0]:
@@ -72,7 +75,7 @@ def main():
                         else:
                             j = 0
                         
-                        if j ==similar_dev_arr[50*t:50*(t+1)][index] :
+                        if j == similar_dev_arr[100*t:100*(t+1)][index] :
                             num_of_true += 1
                         index += 1
                 
