@@ -11,3 +11,4 @@ new_train
 new_test
 train.log
 dataset.py
+softmax_checkpoint
