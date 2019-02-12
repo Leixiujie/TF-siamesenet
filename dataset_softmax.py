@@ -3,7 +3,7 @@ import tensorflow as tf
 from PIL import Image
 from config import FLAGS
 import os
-
+'''
 DEV_NUMBER = FLAGS.DEV_NUMBER
 BASE_PATH = './softmax_train/'
 batch_size = FLAGS.batch_size
@@ -50,7 +50,7 @@ softmax_paths_shuffled = []
 train_id_num, dev_id_num = id_num_shuffled[:DEV_NUMBER], id_num_shuffled[DEV_NUMBER:]
 id_num_shuffled = []
 print('mark: shuffle completed')
-
+'''
 def vectorize_imgs(img_path_list):
     image_arr_list = []
     for img_path in img_path_list:

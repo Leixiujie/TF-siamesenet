@@ -37,9 +37,9 @@ def main():
         
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(var, max_to_keep=20)
-        restore_file_name_path = './softmax_checkpoint/model_404000.ckpt'                #此处输入要续接的模型
+        restore_file_name_path = './softmax_checkpoint/model_486100.ckpt'
         
-        saver.restore(sess, restore_file_name_path)                 
+        saver.restore(sess, restore_file_name_path)                
     
         
         # train iter
@@ -56,7 +56,7 @@ def main():
             f1 = open(distance_txt_file,'w')
             img_paths = []
             
-            for left_path,left_dirs,left_files in os.walk('./test_test/'):
+            for left_path,left_dirs,left_files in os.walk('./new_test/'):
                 break
             
             
@@ -64,19 +64,26 @@ def main():
             batch_paths, batch_id_num, idx, jump_out_or_not = get_batch_image_path(left_files,start = idx,train_or_test = False)
             batch_img_arr, batch_id_num_arr = get_batch_image_array(batch_paths, batch_id_num)
             '''
-            path = './new_train/0_0000e88ab.jpg'
-            img = Image.open(path)
-            img_arr = np.asarray(img,dtype='float32')/255.0
-            img_arr = img_arr.reshape((1,72,72,3))
-            output,output_max = sess.run([output,output_max],feed_dict={x:img_arr})
-            print(output_max)
-            #output = sess.run(sess.run([output],feed_dict={x:batch_img_arr}))
-
-                  
+            for test_pic in left_files:                
+                path = './new_test/'+str(test_pic).strip()
+                img = Image.open(path)
+                img_arr = np.asarray(img,dtype='float32')/255.0
+                img_arr = img_arr.reshape((1,72,72,3))
+                output_,output__max = sess.run([output,output_max],feed_dict={x:img_arr})
+                what_to_write = ''
+                for distance in output_[0]:
+                    what_to_write = what_to_write + str(distance) +' '
+                
+                what_to_write= what_to_write.strip() + '\n'
+                f1.write(what_to_write)
+                #output = sess.run(sess.run([output],feed_dict={x:batch_img_arr}))
     
-            if (i % 100 == 0): 
-                print('\n正在处理'+str(i)+'张图片\n')
-            i += 1
-
+                      
+        
+                if (i % 100 == 0): 
+                    print('\n正在处理'+str(i)+'张图片\n')
+                i += 1
+            
+            f1.close()
 if __name__ == '__main__' :
     main()
