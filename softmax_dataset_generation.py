@@ -223,9 +223,9 @@ def csv_enhancement():
             
 if __name__ == '__main__':
     root = './train/'
-    transformed_images = './softmax_train1/'
-    csv_enhancement()
-    #all_pics_processing(root,transformed_images)
-    #all_pics_processing('./train/','./train_with_3_channels/',enhancement=False)
-    #tf_enhancement.generate('./train_with_3_channels/','./softmax_train1/')
-    all_pics_processing('./test/','./new_test/',enhancement=False)    
+    transformed_images = './softmax_train/'
+    #csv_enhancement()
+    all_pics_processing(root,transformed_images)
+    all_pics_processing('./train/','./train_with_3_channels/',enhancement=False)
+    tf_enhancement.generate('./train_with_3_channels/','./softmax_train/')
+    #all_pics_processing('./test/','./new_test/',enhancement=False)    
